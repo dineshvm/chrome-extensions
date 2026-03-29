@@ -233,8 +233,8 @@ function updateFibStops() {
   const fullRisk = Math.abs(entry - finalStop);
   const isLong = tradeType === 'long';
 
-  const stop1 = isLong ? entry + (fullRisk * 0.5) : entry - (fullRisk * 0.5);
-  const stop2 = isLong ? entry + (fullRisk * 0.618) : entry - (fullRisk * 0.618);
+  const stop1 = isLong ? entry - (fullRisk * 0.5) : entry + (fullRisk * 0.5);
+  const stop2 = isLong ? entry - (fullRisk * 0.618) : entry + (fullRisk * 0.618);
   const stop3 = finalStop;
 
   document.getElementById('stop1').textContent = stop1.toFixed(2);
@@ -260,7 +260,6 @@ async function fetchLivePrice() {
   try {
     const symbol = ticker.includes('.') ? ticker : `${ticker}.NS`;
 
-    document.getElementById('dataSource').textContent = 'Data: Yahoo Finance';
     await fetchFromYahooFinance(symbol);
 
   } catch (error) {
@@ -323,6 +322,7 @@ async function fetchFromYahooFinance(ticker) {
   document.getElementById('hod').textContent = (meta.regularMarketDayHigh || quotes.high?.[quotes.high.length - 1] || currentPrice).toFixed(2);
   document.getElementById('prevClose').textContent = prevClose.toFixed(2);
   document.getElementById('entryPrice').value = currentPrice.toFixed(2);
+  document.getElementById('priceGrid').style.display = 'flex';
 
   if (quotes.low && quotes.low.length >= 2 && quotes.high && quotes.high.length >= 2) {
     const prevLow = quotes.low[quotes.low.length - 2];
@@ -334,7 +334,6 @@ async function fetchFromYahooFinance(ticker) {
     document.getElementById('prevHod').textContent = '-';
   }
 
-  document.getElementById('priceGrid').style.display = 'grid';
 }
 
 function calculate() {

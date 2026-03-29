@@ -234,22 +234,6 @@ input[type="text"]:focus {
   flex: 1;
 }
 
-.fetch-btn {
-  background: #4a9eff;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 16px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.fetch-btn:hover {
-  background: #3a8eef;
-}
-
 .price-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -258,6 +242,41 @@ input[type="text"]:focus {
   padding: 12px;
   background: #252932;
   border-radius: 6px;
+}
+
+.price-cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.price-card {
+  flex: 1;
+  min-width: 0;
+  background: #252932;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.price-card-label {
+  font-size: 10px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.price-card-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e0e0e0;
 }
 
 .price-item {
@@ -279,27 +298,8 @@ input[type="text"]:focus {
 }
 
 .stop-toggle {
-  display: flex;
+  display: inline-flex;
   gap: 8px;
-  margin-bottom: 8px;
-}
-
-.stop-btn {
-  flex: 1;
-  padding: 8px;
-  background: #252932;
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: #888;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s;
-}
-
-.stop-btn.active {
-  background: #4a9eff;
-  color: white;
-  border-color: #4a9eff;
 }
 
 .fib-stops {
@@ -357,24 +357,6 @@ input[type="text"]:focus {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
-}
-
-.risk-btn {
-  flex: 1;
-  padding: 8px;
-  background: #252932;
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: #888;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s;
-}
-
-.risk-btn:hover,
-.risk-btn.active {
-  background: #333;
-  color: #e0e0e0;
 }
 
 .results-section {
@@ -446,9 +428,8 @@ input[type="text"]:focus {
 }
 
 .profit-grid {
-  display: flex;
-  gap: 6px;
-  flex: 1;
+  display: inline-flex;
+  gap: 8px;
 }
 
 .target-price-input {
@@ -673,7 +654,7 @@ input[type="text"]:focus {
 }
 
 .ticker-section {
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .ticker-section label {
@@ -772,13 +753,12 @@ input[type="text"]:focus {
 }
 
 .trade-type-toggle {
-  display: flex;
-  gap: 6px;
+  display: inline-flex;
+  gap: 8px;
 }
 
 .trade-type-btn {
-  flex: 1;
-  padding: 8px;
+  padding: 12px 30px;
   background: #252932;
   border: 1px solid #333;
   border-radius: 6px;
@@ -788,6 +768,7 @@ input[type="text"]:focus {
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .trade-type-btn:hover {
@@ -810,15 +791,8 @@ input[type="text"]:focus {
   border-color: #ef4444;
 }
 
-.stop-toggle {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
 .stop-btn {
-  flex: 1;
-  padding: 8px;
+  padding: 10px 16px;
   background: #252932;
   border: 1px solid #333;
   border-radius: 6px;
@@ -828,6 +802,7 @@ input[type="text"]:focus {
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .stop-btn:hover {
@@ -840,24 +815,58 @@ input[type="text"]:focus {
   color: white;
 }
 
-.risk-buttons {
+.stop-loss-row {
   display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.stop-input-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.stop-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  background: #252932;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 10px;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.stop-input-wrapper input:focus {
+  outline: none;
+  border-color: #4a9eff;
+}
+
+.risk-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.risk-buttons {
+  display: inline-flex;
+  gap: 8px;
 }
 
 .risk-btn {
-  flex: 1;
-  padding: 8px;
+  padding: 12px 14px;
   background: #252932;
   border: 1px solid #333;
   border-radius: 6px;
   color: #888;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .risk-btn:hover {
@@ -868,6 +877,29 @@ input[type="text"]:focus {
   background: #4a9eff;
   border-color: #4a9eff;
   color: white;
+}
+
+.risk-input-wrapper {
+  flex: 0 0 80px;
+}
+
+.risk-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  background: #252932;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px;
+  color: #e0e0e0;
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.risk-input-wrapper input:focus {
+  outline: none;
+  border-color: #4a9eff;
 }
 
 .risk-section {
