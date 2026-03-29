@@ -34,11 +34,11 @@ async function loadSettings() {
 
 async function toggleHistoryView(view) {
   historyView = view;
-  
+
   document.querySelectorAll('.view-toggle-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === view);
   });
-  
+
   if (view === 'table') {
     document.getElementById('tableView').style.display = 'block';
     document.getElementById('cardView').style.display = 'none';
@@ -46,9 +46,9 @@ async function toggleHistoryView(view) {
     document.getElementById('tableView').style.display = 'none';
     document.getElementById('cardView').style.display = 'block';
   }
-  
+
   chrome.storage.local.set({ historyView: view });
-  
+
   await loadTradeHistory();
 }
 
@@ -72,11 +72,11 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tab);
   });
-  
+
   document.querySelectorAll('.tab-content').forEach(content => {
     content.classList.remove('active');
   });
-  
+
   const targetTab = tab === 'calculator' ? 'calculatorTab' : 'historyTab';
   document.getElementById(targetTab).classList.add('active');
 }
@@ -118,7 +118,7 @@ function initializeEventListeners() {
   document.getElementById('entryPrice').addEventListener('input', updateFibStops);
   document.getElementById('stopLoss').addEventListener('input', updateFibStops);
   document.getElementById('targetPrice').addEventListener('input', calculateTargetRR);
-  
+
   document.addEventListener('click', (e) => {
     if (e.target.closest('.edit-btn')) {
       const tradeId = e.target.closest('.edit-btn').dataset.tradeId;
@@ -129,7 +129,7 @@ function initializeEventListeners() {
       if (tradeId) deleteTrade(tradeId);
     }
   });
-  
+
   document.getElementById('downloadHistoryBtn')?.addEventListener('click', downloadHistoryCSV);
 }
 
@@ -166,19 +166,19 @@ function selectRisk(risk) {
 function toggleProfitTarget(r) {
   const rValue = parseInt(r);
   const index = selectedProfitTargets.indexOf(rValue);
-  
+
   if (index > -1) {
     selectedProfitTargets.splice(index, 1);
   } else {
     selectedProfitTargets.push(rValue);
   }
-  
+
   selectedProfitTargets.sort((a, b) => a - b);
-  
+
   document.querySelectorAll('.profit-btn').forEach(btn => {
     btn.classList.toggle('selected', selectedProfitTargets.includes(parseInt(btn.dataset.r)));
   });
-  
+
   if (currentCalculation) {
     const entry = parseFloat(document.getElementById('entryPrice').value);
     const finalStop = parseFloat(document.getElementById('stopLoss').value);
@@ -192,32 +192,32 @@ function calculateTargetRR() {
   const entry = parseFloat(document.getElementById('entryPrice').value);
   const finalStop = parseFloat(document.getElementById('stopLoss').value);
   const targetPrice = parseFloat(document.getElementById('targetPrice').value);
-  
+
   if (!entry || !finalStop || !targetPrice) {
     document.getElementById('targetRRDisplay').style.display = 'none';
     return;
   }
-  
+
   const riskPerShare = Math.abs(entry - finalStop);
   const rewardPerShare = Math.abs(targetPrice - entry);
-  
-  const isValidTarget = (tradeType === 'long' && targetPrice > entry) || 
-                        (tradeType === 'short' && targetPrice < entry);
-  
+
+  const isValidTarget = (tradeType === 'long' && targetPrice > entry) ||
+    (tradeType === 'short' && targetPrice < entry);
+
   if (!isValidTarget || riskPerShare === 0) {
     document.getElementById('targetRRDisplay').style.display = 'none';
     return;
   }
-  
+
   const rMultiple = rewardPerShare / riskPerShare;
   const netRiskMultiple = stopMode === 3 ? 0.706 : 1;
   const actualRR = rMultiple / netRiskMultiple;
-  
+
   let rrText = `${rMultiple.toFixed(2)}R`;
   if (stopMode === 3) {
     rrText += ` (${actualRR.toFixed(1)}:1 actual)`;
   }
-  
+
   document.getElementById('targetRRValue').textContent = rrText;
   document.getElementById('targetRRDisplay').style.display = 'flex';
 }
@@ -241,13 +241,13 @@ function updateFibStops() {
   document.getElementById('stop2').textContent = stop2.toFixed(2);
   document.getElementById('stop3').textContent = stop3.toFixed(2);
   document.getElementById('fibStops').style.display = 'block';
-  
+
   calculateTargetRR();
 }
 
 async function fetchLivePrice() {
   const ticker = document.getElementById('ticker').value.trim();
-  
+
   if (!ticker) {
     alert('Please enter a ticker symbol');
     return;
@@ -259,10 +259,10 @@ async function fetchLivePrice() {
 
   try {
     const symbol = ticker.includes('.') ? ticker : `${ticker}.NS`;
-    
+
     document.getElementById('dataSource').textContent = 'Data: Yahoo Finance';
     await fetchFromYahooFinance(symbol);
-    
+
   } catch (error) {
     console.error('API error:', error);
     alert(`Error fetching price: ${error.message}\n\nTry:\n- RELIANCE.NS for NSE\n- RELIANCE.BO for BSE\n- Check ticker symbol`);
@@ -276,13 +276,13 @@ async function fetchYahooHistoricalData(symbol) {
   try {
     const endDate = Math.floor(Date.now() / 1000);
     const startDate = endDate - (86400 * 5);
-    
+
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${startDate}&period2=${endDate}&interval=1d`;
     const response = await fetch(url);
     const data = await response.json();
-    
+
     const quotes = data?.chart?.result?.[0]?.indicators?.quote?.[0];
-    
+
     if (quotes?.low?.length >= 2 && quotes?.high?.length >= 2) {
       const prevIndex = quotes.low.length - 2;
       const prevLow = quotes.low[prevIndex];
@@ -303,27 +303,27 @@ async function fetchYahooHistoricalData(symbol) {
 async function fetchFromYahooFinance(ticker) {
   const symbol = ticker.includes('.') ? ticker : `${ticker}.NS`;
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`;
-  
+
   const response = await fetch(url);
   const data = await response.json();
-  
+
   if (!data.chart || !data.chart.result || !data.chart.result[0]) {
     throw new Error('Invalid ticker or no data available');
   }
-  
+
   const result = data?.chart?.result?.[0];
   const meta = result?.meta;
   const quotes = result?.indicators?.quote?.[0];
-  
+
   const currentPrice = meta.regularMarketPrice || 0;
   const prevClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
-  
+
   document.getElementById('currentPrice').textContent = currentPrice.toFixed(2);
   document.getElementById('lod').textContent = (meta.regularMarketDayLow || quotes.low?.[quotes.low.length - 1] || currentPrice).toFixed(2);
   document.getElementById('hod').textContent = (meta.regularMarketDayHigh || quotes.high?.[quotes.high.length - 1] || currentPrice).toFixed(2);
   document.getElementById('prevClose').textContent = prevClose.toFixed(2);
   document.getElementById('entryPrice').value = currentPrice.toFixed(2);
-  
+
   if (quotes.low && quotes.low.length >= 2 && quotes.high && quotes.high.length >= 2) {
     const prevLow = quotes.low[quotes.low.length - 2];
     const prevHigh = quotes.high[quotes.high.length - 2];
@@ -333,7 +333,7 @@ async function fetchFromYahooFinance(ticker) {
     document.getElementById('prevLod').textContent = '-';
     document.getElementById('prevHod').textContent = '-';
   }
-  
+
   document.getElementById('priceGrid').style.display = 'grid';
 }
 
@@ -363,13 +363,13 @@ function calculate() {
     const stop1Risk = fullRiskPerShare * 0.5;
     const stop2Risk = fullRiskPerShare * 0.618;
     const stop3Risk = fullRiskPerShare * 1.0;
-    
+
     const avgRisk = (stop1Risk + stop2Risk + stop3Risk) / 3;
     netRiskMultiple = avgRisk / fullRiskPerShare;
-    
+
     effectiveRiskPerShare = avgRisk;
     shares = Math.floor(totalRiskAmount / avgRisk);
-    
+
     document.getElementById('netRisk').textContent = `-${netRiskMultiple.toFixed(2)}R`;
   }
 
@@ -378,17 +378,17 @@ function calculate() {
   const actualRisk = shares * effectiveRiskPerShare;
 
   const sharesPerStop = stopMode === 3 ? Math.floor(shares / 3) : shares;
-  const displayText = stopMode === 3 
+  const displayText = stopMode === 3
     ? `${shares} shares (${sharesPerStop} per stop)`
     : `${shares} shares`;
 
   document.getElementById('sharesCount').textContent = displayText;
-  document.getElementById('sharesDetail').textContent = 
+  document.getElementById('sharesDetail').textContent =
     `₹${tradeValue.toFixed(2)} (${tradeValuePercent.toFixed(1)}%) - Risk ₹${actualRisk.toFixed(2)}`;
 
-  document.getElementById('tradeValue').textContent = 
+  document.getElementById('tradeValue').textContent =
     `₹${tradeValue.toFixed(2)} (${tradeValuePercent.toFixed(1)}%)`;
-  document.getElementById('riskAmount').textContent = 
+  document.getElementById('riskAmount').textContent =
     `${riskPercent}% / ₹${actualRisk.toFixed(2)}`;
 
   if (selectedProfitTargets.length > 0) {
@@ -414,7 +414,7 @@ function calculate() {
   };
 
   document.getElementById('saveTradeBtn').style.display = 'block';
-  saveCalculation({capital, entry, finalStop, riskPercent, shares, tradeValue});
+  saveCalculation({ capital, entry, finalStop, riskPercent, shares, tradeValue });
 }
 
 function displayProfitTargets(entry, fullRiskPerShare, shares, isLong, netRiskMultiple) {
@@ -422,15 +422,15 @@ function displayProfitTargets(entry, fullRiskPerShare, shares, isLong, netRiskMu
   profitValuesDiv.innerHTML = '';
 
   selectedProfitTargets.forEach(r => {
-    const targetPrice = isLong 
+    const targetPrice = isLong
       ? entry + (fullRiskPerShare * r)
       : entry - (fullRiskPerShare * r);
-    
+
     const profitAmount = shares * fullRiskPerShare * r;
 
     const row = document.createElement('div');
     row.className = 'profit-row';
-    
+
     let rrDisplay;
     if (stopMode === 3) {
       const actualRR = (r / netRiskMultiple).toFixed(1);
@@ -438,7 +438,7 @@ function displayProfitTargets(entry, fullRiskPerShare, shares, isLong, netRiskMu
     } else {
       rrDisplay = `${r}R`;
     }
-    
+
     row.innerHTML = `
       <span>${rrDisplay} @ ₹${targetPrice.toFixed(2)}</span>
       <span>₹${profitAmount.toFixed(2)}</span>
@@ -489,7 +489,7 @@ async function saveTrade() {
 
   try {
     const notes = document.getElementById('tradeNotes')?.value?.trim() || '';
-    
+
     const trade = {
       id: editingTradeId || Date.now().toString(),
       timestamp: editingTradeId ? (await getTradeById(editingTradeId))?.timestamp || Date.now() : Date.now(),
@@ -533,7 +533,7 @@ async function loadTradeHistory() {
   try {
     const result = await chrome.storage.local.get(['tradeHistory']);
     const trades = result?.tradeHistory || [];
-    
+
     if (historyView === 'table') {
       loadTableView(trades);
     } else {
@@ -546,14 +546,14 @@ async function loadTradeHistory() {
 
 function loadTableView(trades) {
   const tbody = document.getElementById('tableViewBody');
-  
+
   if (trades.length === 0) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No trades saved yet</td></tr>';
     return;
   }
-  
+
   tbody.innerHTML = '';
-  
+
   trades.forEach(trade => {
     const row = createTableRow(trade);
     tbody.appendChild(row);
@@ -562,21 +562,21 @@ function loadTableView(trades) {
 
 function createTableRow(trade) {
   const tr = document.createElement('tr');
-  
+
   const date = new Date(trade?.timestamp || Date.now());
-  const dateStr = date.toLocaleDateString('en-IN', { 
-    day: '2-digit', 
+  const dateStr = date.toLocaleDateString('en-IN', {
+    day: '2-digit',
     month: 'short',
     year: 'numeric'
   });
-  
+
   const tradeTypeClass = trade?.tradeType === 'short' ? 'short' : 'long';
   const tradeTypeText = trade?.tradeType === 'short' ? 'SHORT' : 'LONG';
-  
-  const positionPercent = trade?.capital && trade?.tradeValue 
+
+  const positionPercent = trade?.capital && trade?.tradeValue
     ? ((trade.tradeValue / trade.capital) * 100).toFixed(1)
     : '0.0';
-  
+
   tr.innerHTML = `
     <td class="td-date">${dateStr}</td>
     <td class="td-ticker"><span class="table-ticker" title="${trade?.ticker || 'N/A'}">${trade?.ticker || 'N/A'}</span></td>
@@ -606,20 +606,20 @@ function createTableRow(trade) {
       </div>
     </td>
   `;
-  
+
   return tr;
 }
 
 function loadCardView(trades) {
   const listDiv = document.getElementById('tradeHistoryList');
-  
+
   if (trades.length === 0) {
     listDiv.innerHTML = '<div class="empty-history"><span>No trades saved yet</span></div>';
     return;
   }
 
   const groupedTrades = groupTradesByDate(trades);
-  
+
   listDiv.innerHTML = '';
   Object.keys(groupedTrades).forEach(dateKey => {
     const dateGroup = createDateGroup(dateKey, groupedTrades[dateKey]);
@@ -629,63 +629,63 @@ function loadCardView(trades) {
 
 function groupTradesByDate(trades) {
   const grouped = {};
-  
+
   trades.forEach(trade => {
     if (!trade?.timestamp) return;
-    
+
     const date = new Date(trade.timestamp);
-    const dateKey = date.toLocaleDateString('en-IN', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    const dateKey = date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
-    
+
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }
     grouped[dateKey].push(trade);
   });
-  
+
   return grouped;
 }
 
 function createDateGroup(dateKey, trades) {
   const groupDiv = document.createElement('div');
   groupDiv.className = 'date-group';
-  
+
   const headerDiv = document.createElement('div');
   headerDiv.className = 'date-group-header';
-  
-  const today = new Date().toLocaleDateString('en-IN', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
+
+  const today = new Date().toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   });
-  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-IN', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
+  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   });
-  
+
   let displayDate = dateKey;
   if (dateKey === today) {
     displayDate = 'Today';
   } else if (dateKey === yesterday) {
     displayDate = 'Yesterday';
   }
-  
+
   headerDiv.innerHTML = `
     <span class="date-group-title">${displayDate}</span>
     <span class="date-group-count">${trades.length} trade${trades.length > 1 ? 's' : ''}</span>
   `;
-  
+
   groupDiv.appendChild(headerDiv);
-  
+
   trades.forEach(trade => {
     const tradeItem = createTradeItem(trade);
     groupDiv.appendChild(tradeItem);
   });
-  
+
   return groupDiv;
 }
 
@@ -701,8 +701,8 @@ function createTradeItem(trade) {
   const tradeTypeText = trade?.tradeType === 'short' ? '📉 SHORT' : '📈 LONG';
   const stopModeText = trade?.stopMode === 3 ? '3 Stops' : '1 Stop';
   const netRiskText = trade?.stopMode === 3 ? ` (Net: -${trade?.netRiskMultiple?.toFixed(2) || '0.70'}R)` : '';
-  
-  const positionPercent = trade?.capital && trade?.tradeValue 
+
+  const positionPercent = trade?.capital && trade?.tradeValue
     ? ((trade.tradeValue / trade.capital) * 100).toFixed(1)
     : '0.0';
 
@@ -783,7 +783,7 @@ function createTradeItem(trade) {
   return div;
 }
 
-window.editTrade = async function(tradeId) {
+window.editTrade = async function (tradeId) {
   try {
     console.log('Edit trade called with ID:', tradeId);
     const trade = await getTradeById(tradeId);
@@ -794,26 +794,26 @@ window.editTrade = async function(tradeId) {
 
     editingTradeId = tradeId;
     console.log('Switching to calculator tab...');
-    
+
     switchTab('calculator');
-    
+
     document.getElementById('ticker').value = trade?.ticker || '';
     document.getElementById('totalCapital').value = trade?.capital || '';
     document.getElementById('entryPrice').value = trade?.entry || '';
     document.getElementById('stopLoss').value = trade?.finalStop || '';
     document.getElementById('riskPercent').value = trade?.riskPercent || '';
     document.getElementById('tradeNotes').value = trade?.notes || '';
-    
+
     selectStopMode((trade?.stopMode || 1).toString());
     selectTradeType(trade?.tradeType || 'long');
-    
+
     selectedProfitTargets = [...(trade?.profitTargets || [2])];
     document.querySelectorAll('.profit-btn').forEach(btn => {
       btn.classList.toggle('selected', selectedProfitTargets.includes(parseInt(btn.dataset.r)));
     });
-    
+
     calculate();
-    
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (error) {
     console.error('Error editing trade:', error);
@@ -821,17 +821,17 @@ window.editTrade = async function(tradeId) {
   }
 };
 
-window.deleteTrade = async function(tradeId) {
+window.deleteTrade = async function (tradeId) {
   console.log('Delete trade called with ID:', tradeId);
   if (!confirm('Are you sure you want to delete this trade? This action cannot be undone.')) return;
-  
+
   try {
     const result = await chrome.storage.local.get(['tradeHistory']);
     let trades = result?.tradeHistory || [];
     console.log('Trades before delete:', trades.length);
     trades = trades.filter(t => t?.id !== tradeId);
     console.log('Trades after delete:', trades.length);
-    
+
     await chrome.storage.local.set({ tradeHistory: trades });
     await loadTradeHistory();
   } catch (error) {
@@ -842,7 +842,7 @@ window.deleteTrade = async function(tradeId) {
 
 async function clearAllHistory() {
   if (!confirm('Clear all trade history? This cannot be undone.')) return;
-  
+
   try {
     await chrome.storage.local.set({ tradeHistory: [] });
     await loadTradeHistory();
@@ -856,27 +856,27 @@ async function downloadHistoryCSV() {
   try {
     const result = await chrome.storage.local.get(['tradeHistory']);
     const trades = result?.tradeHistory || [];
-    
+
     if (trades.length === 0) {
       alert('No trades to export');
       return;
     }
-    
+
     const headers = ['Date', 'Ticker', 'Type', 'Entry', 'Stop', 'Shares', 'Position %', 'Risk %', 'Trade Value', 'Targets', 'Notes'];
     const csvRows = [headers.join(',')];
-    
+
     trades.forEach(trade => {
       const date = new Date(trade?.timestamp || Date.now());
-      const dateStr = date.toLocaleDateString('en-IN', { 
-        day: '2-digit', 
+      const dateStr = date.toLocaleDateString('en-IN', {
+        day: '2-digit',
         month: 'short',
         year: 'numeric'
       });
-      
-      const positionPercent = trade?.capital && trade?.tradeValue 
+
+      const positionPercent = trade?.capital && trade?.tradeValue
         ? ((trade.tradeValue / trade.capital) * 100).toFixed(1)
         : '0.0';
-      
+
       const row = [
         dateStr,
         trade?.ticker || 'N/A',
@@ -888,12 +888,12 @@ async function downloadHistoryCSV() {
         trade?.riskPercent || 0,
         trade?.tradeValue?.toFixed(2) || '0.00',
         trade?.profitTargets?.join(' ') || '-',
-        `"${(trade?.notes || '').replace(/"/g, '""')}"` 
+        `"${(trade?.notes || '').replace(/"/g, '""')}"`
       ];
-      
+
       csvRows.push(row.join(','));
     });
-    
+
     const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
