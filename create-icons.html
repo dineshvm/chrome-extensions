@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Icon Generator</title>
+</head>
+<body>
+  <canvas id="canvas16" width="16" height="16"></canvas>
+  <canvas id="canvas48" width="48" height="48"></canvas>
+  <canvas id="canvas128" width="128" height="128"></canvas>
+  
+  <script>
+    function createIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      ctx.fillStyle = '#1a1d26';
+      ctx.fillRect(0, 0, size, size);
+      
+      ctx.fillStyle = '#252932';
+      const margin = size * 0.0625;
+      ctx.fillRect(margin, margin, size - margin * 2, size - margin * 2);
+      
+      ctx.strokeStyle = '#4a9eff';
+      ctx.lineWidth = size * 0.03;
+      ctx.beginPath();
+      ctx.moveTo(size * 0.3, size * 0.65);
+      ctx.lineTo(size * 0.4, size * 0.5);
+      ctx.lineTo(size * 0.55, size * 0.6);
+      ctx.lineTo(size * 0.7, size * 0.4);
+      ctx.stroke();
+      
+      ctx.fillStyle = '#4a9eff';
+      ctx.beginPath();
+      ctx.arc(size * 0.3, size * 0.65, size * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(size * 0.4, size * 0.5, size * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(size * 0.55, size * 0.6, size * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = '#4ade80';
+      ctx.beginPath();
+      ctx.arc(size * 0.7, size * 0.4, size * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+      
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `icon${size}.png`;
+        a.click();
+      });
+    }
+    
+    createIcon('canvas16', 16);
+    setTimeout(() => createIcon('canvas48', 48), 100);
+    setTimeout(() => createIcon('canvas128', 128), 200);
+  </script>
+</body>
+</html>
