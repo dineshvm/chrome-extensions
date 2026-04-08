@@ -222,7 +222,23 @@ function calculateTargetRR() {
   document.getElementById('targetRRDisplay').style.display = 'flex';
 }
 
+function updateStopLossPercent() {
+  const entry = parseFloat(document.getElementById('entryPrice').value);
+  const finalStop = parseFloat(document.getElementById('stopLoss').value);
+  const slPercentEl = document.getElementById('slPercent');
+
+  if (!entry || !finalStop) {
+    slPercentEl.textContent = '-';
+    return;
+  }
+
+  const slPercent = ((Math.abs(entry - finalStop) / entry) * 100).toFixed(2);
+  slPercentEl.textContent = `${slPercent}%`;
+}
+
 function updateFibStops() {
+  updateStopLossPercent();
+  
   if (stopMode !== 3) return;
 
   const entry = parseFloat(document.getElementById('entryPrice').value);
